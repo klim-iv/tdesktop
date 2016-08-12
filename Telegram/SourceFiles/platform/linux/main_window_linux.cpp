@@ -181,7 +181,7 @@ static gboolean _trayIconCheck(gpointer/* pIn*/) {
     return FALSE;
 }
 
-UnityLauncherEntry *_psUnityLauncherEntry = nullptr;
+void *_psUnityLauncherEntry = nullptr;
 
 } // namespace
 

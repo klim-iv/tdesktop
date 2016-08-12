@@ -10,7 +10,6 @@ CONFIG(debug, debug|release) {
     DESTDIR = ./../Debug
 }
 CONFIG(release, debug|release) {
-    DEFINES += CUSTOM_API_ID
     OBJECTS_DIR = ./../ReleaseIntermediate
     MOC_DIR = ./GeneratedFiles/Release
     RCC_DIR = ./GeneratedFiles
@@ -494,11 +493,11 @@ INCLUDEPATH += "/usr/include/dee-1.0"
 INCLUDEPATH += "/usr/include/libdbusmenu-glib-0.4"
 
 LIBS += -ldl -llzma -lopenal -lavformat -lavcodec -lswresample -lswscale -lavutil -lopus -lva
+LIBS += -lz -lcrypto -lssl
 LIBS += $${QT_TDESKTOP_PATH}/plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.a \
         $${QT_TDESKTOP_PATH}/plugins/platforminputcontexts/libibusplatforminputcontextplugin.a \
         $${QT_TDESKTOP_PATH}/plugins/platforminputcontexts/libfcitxplatforminputcontextplugin.a
-LIBS += /usr/local/lib/libz.a
-LIBS += /usr/local/lib/libxkbcommon.a
+LIBS += $${QT_TDESKTOP_PATH}/../libxkbcommon/lib/libxkbcommon.a
 LIBS += ./../../../Libraries/breakpad/src/client/linux/libbreakpad_client.a
 
 RESOURCES += \
@@ -520,3 +519,5 @@ OTHER_FILES += \
     ./SourceFiles/history/history.style \
     ./SourceFiles/overview/overview.style \
     ./SourceFiles/profile/profile.style
+DEFINES += TDESKTOP_DISABLE_AUTOUPDATE
+DEFINES += TDESKTOP_DISABLE_REGISTER_CUSTOM_SCHEME

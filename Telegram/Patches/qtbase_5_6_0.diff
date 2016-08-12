@@ -11253,6 +11253,15 @@ diff --git a/src/plugins/platforms/cocoa/qcocoabackingstore.h b/src/plugins/plat
 index 5a199de..5622728 100644
 --- a/src/plugins/platforms/cocoa/qcocoabackingstore.h
 +++ b/src/plugins/platforms/cocoa/qcocoabackingstore.h
+@@ -51,7 +51,7 @@ public:
+ 
+     QPaintDevice *paintDevice() Q_DECL_OVERRIDE;
+     void flush(QWindow *widget, const QRegion &region, const QPoint &offset) Q_DECL_OVERRIDE;
+-    QImage toImage() const Q_DECL_OVERRIDE;
++    QImage toImage() const;
+     void resize (const QSize &size, const QRegion &) Q_DECL_OVERRIDE;
+     bool scroll(const QRegion &area, int dx, int dy) Q_DECL_OVERRIDE;
+     void beginPaint(const QRegion &region) Q_DECL_OVERRIDE;
 @@ -60,6 +60,9 @@ public:
  private:
      QImage m_qImage;

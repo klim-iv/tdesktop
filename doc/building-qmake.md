@@ -5,7 +5,6 @@ The following commands assume the following environment variables are set:
 
  * `$srcdir`: The directory into which the source has been downloaded and
    unpacked.
- * `_qtver`: The Qt version being used (eg: `5.6.0`).
  * `$pkgdir`: The directory into which installable files are places. This is
    `/` for local installations, or can be different directory when preparing a
    redistributable package.
@@ -15,64 +14,63 @@ Either set them accordingly, or replace them in the below commands as desired.
 The following sources should be downloaded and unpacked into `$srcdir`:
 
   * This repository (either `master` or a specific tag).
-  * `git clone git://code.qt.io/qt/qt5.git`
-  * `git clone git+https://chromium.googlesource.com/breakpad/breakpad breakpad`
-  * `git clone git+https://chromium.googlesource.com/linux-syscall-support breakpad-lss`
-  * telegramdesktop.desktop (The intention is to include this file inside the
-    source package at some point):
-    `https://aur.archlinux.org/cgit/aur.git/plain/telegramdesktop.desktop?h=telegram-desktop`
-  * tg.protocol: `https://aur.archlinux.org/cgit/aur.git/plain/tg.protocol?h=telegram-desktop`
+  * `git clone https://chromium.googlesource.com/breakpad/breakpad breakpad`
+  * `git clone https://chromium.googlesource.com/linux-syscall-support breakpad-lss`
+  * telegramdesktop.desktop :
+    `wget https://aur.archlinux.org/cgit/aur.git/plain/telegramdesktop.desktop?h=telegram-desktop -O telegramdesktop.desktop`
+  * tg.protocol :
+    `wget https://aur.archlinux.org/cgit/aur.git/plain/tg.protocol?h=telegram-desktop -O tg.protocol`
 
 Preparation
 -----------
+    cd $srcdir
 
-    cd "$srcdir/tdesktop"
+    wget http://xkbcommon.org/download/libxkbcommon-0.6.1.tar.xz
+    tar -xvf libxkbcommon-0.6.1.tar.xz
+    cd libxkbcommon-0.6.1
+    ./configure --prefix=$srcdir/libxkbcommon --disable-x11
+    make install
+    export PKG_CONFIG_PATH=$srcdir/libxkbcommon/lib/pkgconfig
 
-    mkdir -p "$srcdir/Libraries"
 
-    local qt_patch_file="$srcdir/tdesktop/Telegram/Patches/qtbase_${_qtver//./_}.diff"
-    local qt_dir="$srcdir/Libraries/qt${_qtver//./_}"
-    if [ "$qt_patch_file" -nt "$qt_dir" ]; then
-      rm -rf "$qt_dir"
-      git clone git://code.qt.io/qt/qt5.git
-      cd "$qt_dir"
-      git checkout 5.6
-      perl init-repository --module-subset=qtbase,qtimageformats
-      git checkout v$_qtver
-      cd qtimageformats
-      git checkout v$_qtver
-      cd ../qtbase
-      git checkout v$_qtver
-      git apply "$qt_patch_file"
-    fi
+    pushd "$srcdir/tdesktop"
+    git clone git://code.qt.io/qt/qt5.git
 
-    if [ ! -h "$srcdir/Libraries/breakpad" ]; then
-      ln -s "$srcdir/breakpad" "$srcdir/Libraries/breakpad"
-      ln -s "$srcdir/breakpad-lss" "$srcdir/Libraries/breakpad/src/third_party/lss"
-    fi
+    pushd qt5
 
-    sed -i 's/CUSTOM_API_ID//g' "$srcdir/tdesktop/Telegram/Telegram.pro"
-    sed -i 's,LIBS += /usr/local/lib/libxkbcommon.a,,g' "$srcdir/tdesktop/Telegram/Telegram.pro"
-    sed -i 's,LIBS += /usr/local/lib/libz.a,LIBS += -lz,g' "$srcdir/tdesktop/Telegram/Telegram.pro"
+    git checkout 5.6
+    perl init-repository --module-subset=qtbase,qtimageformats
+    git checkout v5.6.0
 
-    (
-      echo "DEFINES += TDESKTOP_DISABLE_AUTOUPDATE"
-      echo "DEFINES += TDESKTOP_DISABLE_REGISTER_CUSTOM_SCHEME"
-      echo 'INCLUDEPATH += "/usr/lib/glib-2.0/include"'
-      echo 'INCLUDEPATH += "/usr/lib/gtk-2.0/include"'
-      echo 'INCLUDEPATH += "/usr/include/opus"'
-      echo 'LIBS += -lcrypto -lssl'
-    ) >> "$srcdir/tdesktop/Telegram/Telegram.pro"
+    pushd qtimageformats
+    git checkout v5.6.0
+    popd
+
+    pushd qtbase
+    git checkout v5.6.0
+    popd
+
+    git apply $srcdir/tdesktop/Telegram/Patches/qtbase_5_6_0.diff
+
+    popd
+    popd
+
+    mkdir -p $srcdir/Libraries
+    ln -s "$srcdir/breakpad" "$srcdir/Libraries/breakpad"
+
+    rm -rf $srcdir/Libraries/breakpad/src/third_party/lss
+    ln -s "$srcdir/breakpad-lss" "$srcdir/Libraries/breakpad/src/third_party/lss"
 
 Building
 --------
 
 
     # Build patched Qt
-    cd "$srcdir/Libraries/QtStatic"
+    cd "$srcdir/tdesktop/qt5"
     ./configure -prefix "$srcdir/qt" -release -opensource -confirm-license -qt-zlib \
                 -qt-libpng -qt-libjpeg -qt-freetype -qt-harfbuzz -qt-pcre -qt-xcb \
                 -qt-xkbcommon-x11 -no-opengl -static -nomake examples -nomake tests
+
     make module-qtbase module-qtimageformats
     make module-qtbase-install_subtargets module-qtimageformats-install_subtargets
 
@@ -84,28 +82,28 @@ Building
     make
 
     # Build codegen_style
-    mkdir -p "$srcdir/tdesktop/Linux/obj/codegen_style/Debug"
-    cd "$srcdir/tdesktop/Linux/obj/codegen_style/Debug"
-    qmake CONFIG+=debug ../../../../Telegram/build/qmake/codegen_style/codegen_style.pro
+    mkdir -p "$srcdir/tdesktop/Linux/obj/codegen_style/Release"
+    cd "$srcdir/tdesktop/Linux/obj/codegen_style/Release"
+    qmake CONFIG+=release ../../../../Telegram/build/qmake/codegen_style/codegen_style.pro
     make
 
     # Build codegen_numbers
-    mkdir -p "$srcdir/tdesktop/Linux/obj/codegen_numbers/Debug"
-    cd "$srcdir/tdesktop/Linux/obj/codegen_numbers/Debug"
-    qmake CONFIG+=debug ../../../../Telegram/build/qmake/codegen_numbers/codegen_numbers.pro
+    mkdir -p "$srcdir/tdesktop/Linux/obj/codegen_numbers/Release"
+    cd "$srcdir/tdesktop/Linux/obj/codegen_numbers/Release"
+    qmake CONFIG+=release ../../../../Telegram/build/qmake/codegen_numbers/codegen_numbers.pro
     make
 
     # Build MetaLang
     mkdir -p "$srcdir/tdesktop/Linux/DebugIntermediateLang"
     cd "$srcdir/tdesktop/Linux/DebugIntermediateLang"
-    qmake CONFIG+=debug "../../Telegram/MetaLang.pro"
+    qmake CONFIG+=release "../../Telegram/MetaLang.pro"
     make
 
     # Build Telegram Desktop
     mkdir -p "$srcdir/tdesktop/Linux/ReleaseIntermediate"
     cd "$srcdir/tdesktop/Linux/ReleaseIntermediate"
-
     qmake CONFIG+=release "../../Telegram/Telegram.pro"
+    qmake QT_TDESKTOP_VERSION=5.6.0 QT_TDESKTOP_PATH=$srcdir/qt CONFIG+=release "../../Telegram/Telegram.pro"
     make
 
 Installation

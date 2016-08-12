@@ -27,7 +27,7 @@ extern "C" {
 #define signals public
 } // extern "C"
 
-#include <unity/unity/unity.h>
+//#include <unity/unity/unity.h>
 
 namespace Platform {
 namespace Libs {
@@ -167,13 +167,13 @@ extern f_g_object_unref g_object_unref;
 typedef guint (*f_g_idle_add)(GSourceFunc function, gpointer data);
 extern f_g_idle_add g_idle_add;
 
-typedef void (*f_unity_launcher_entry_set_count)(UnityLauncherEntry* self, gint64 value);
+typedef void (*f_unity_launcher_entry_set_count)(void* self, gint64 value);
 extern f_unity_launcher_entry_set_count unity_launcher_entry_set_count;
 
-typedef void (*f_unity_launcher_entry_set_count_visible)(UnityLauncherEntry* self, gboolean value);
+typedef void (*f_unity_launcher_entry_set_count_visible)(void* self, gboolean value);
 extern f_unity_launcher_entry_set_count_visible unity_launcher_entry_set_count_visible;
 
-typedef UnityLauncherEntry* (*f_unity_launcher_entry_get_for_desktop_id)(const gchar* desktop_id);
+typedef void* (*f_unity_launcher_entry_get_for_desktop_id)(const gchar* desktop_id);
 extern f_unity_launcher_entry_get_for_desktop_id unity_launcher_entry_get_for_desktop_id;
 
 } // namespace Libs
