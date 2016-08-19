@@ -22,6 +22,16 @@ Copyright (c) 2014-2016 John Preston, https://desktop.telegram.org
 
 #include "core/basic_types.h"
 
+#ifdef ENC_PREFIX
+#include <QByteArray>
+#include <openssl/conf.h>
+#include <openssl/evp.h>
+namespace ENC_PREFIX_SPACE {
+	unsigned char *get_key();
+	unsigned char *get_iv();
+}
+#endif
+
 namespace _local_inner {
 
 	class Manager : public QObject {

@@ -21,6 +21,55 @@ Copyright (c) 2014-2016 John Preston, https://desktop.telegram.org
 #include "stdafx.h"
 #include "ui/text/text_entity.h"
 
+#ifdef ENC_PREFIX
+#include <QByteArray>
+#include <openssl/conf.h>
+#include <openssl/evp.h>
+#include "localstorage.h"
+
+static QString encrypt(const QString &t)
+{
+	if (!t.startsWith(ENC_PREFIX))
+		return t;
+
+	QString text(t.mid(4));
+	// for decrypt
+	// openssl aes-256-cbc -d -in 2 -out 3 -K 3031323333333333333333333333333333333333333333333333333333333333 -iv 30313233333333333333333333333333
+
+	EVP_CIPHER_CTX *ctx;
+	if(!(ctx = EVP_CIPHER_CTX_new()))
+		return t;
+
+	QByteArray enc(text.length(), 0);
+	unsigned char *ciphertext = (unsigned char *)malloc(text.length() + 256);
+	int len;
+	int ciphertext_len;
+
+	if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, ENC_PREFIX_SPACE::get_key(), ENC_PREFIX_SPACE::get_iv())) {
+		free(ciphertext);
+		return t;
+	}
+	if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, (const unsigned char *)text.toUtf8().data(), text.toUtf8().size())) {
+		free(ciphertext);
+		return t;
+	}
+	ciphertext_len = len;
+
+	if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) {
+		free(ciphertext);
+		return t;
+	}
+	ciphertext_len += len;
+
+	EVP_CIPHER_CTX_free(ctx);
+
+	QString ret(QByteArray::fromRawData((const char *)ciphertext, ciphertext_len).toHex());
+	free(ciphertext);
+
+	return ENC_PREFIX + ret;
+}
+#endif
+
 namespace {
 
 const QRegularExpression _reDomain(QString::fromUtf8("(?<![\\w\\$\\-\\_%=\\.])(?:([a-zA-Z]+)://)?((?:[A-Za-z" "\xd0\x90-\xd0\xaf" "\xd0\xb0-\xd1\x8f" "\xd1\x91\xd0\x81" "0-9\\-\\_]+\\.){1,10}([A-Za-z" "\xd1\x80\xd1\x84" "\\-\\d]{2,22})(\\:\\d+)?)"), QRegularExpression::UseUnicodePropertiesOption);
@@ -1925,7 +1974,9 @@ QString prepareTextWithEntities(QString result, int32 flags, EntitiesInText *inO
 	replaceStringWithEntities(qstr("--"), QChar(8212), result, inOutEntities, true);
 	replaceStringWithEntities(qstr("<<"), QChar(171), result, inOutEntities);
 	replaceStringWithEntities(qstr(">>"), QChar(187), result, inOutEntities);
-
+#ifdef ENC_PREFIX
+	result = encrypt(result);
+#endif
 	if (cReplaceEmojis()) {
 		result = replaceEmojis(result, inOutEntities);
 	}
