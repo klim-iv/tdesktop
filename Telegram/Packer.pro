@@ -13,7 +13,7 @@ CONFIG(release, debug|release) {
 }
 
 macx {
-    QMAKE_INFO_PLIST = ./SourceFiles/_other/Packer.plist
+    QMAKE_INFO_PLIST = ./Packer.plist
     QMAKE_LFLAGS += -framework Cocoa
 }
 

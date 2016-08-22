@@ -17,8 +17,9 @@ CONFIG(release, debug|release) {
 }
 
 macx {
-    QMAKE_INFO_PLIST = ./SourceFiles/Telegram.plist
+    QMAKE_INFO_PLIST = ./Telegram.plist
     QMAKE_LFLAGS += -framework Cocoa
+    DEFINES += MAC_USE_BREAKPAD
 }
 
 linux {
@@ -39,7 +40,11 @@ CONFIG(debug, debug|release) {
 
     codegen_lang.target = lang_target
     codegen_lang.depends = ./../../Telegram/Resources/langs/lang.strings
-    codegen_lang.commands = mkdir -p ./GeneratedFiles && ./../DebugLang/MetaLang -lang_in ./../../Telegram/Resources/langs/lang.strings -lang_out ./GeneratedFiles/lang_auto
+    macx {
+        codegen_lang.commands = mkdir -p ./GeneratedFiles && ./../DebugLang/MetaLang.app/Contents/MacOS/MetaLang -lang_in ./../../Telegram/Resources/langs/lang.strings -lang_out ./GeneratedFiles/lang_auto
+    } else {
+        codegen_lang.commands = mkdir -p ./GeneratedFiles && ./../DebugLang/MetaLang -lang_in ./../../Telegram/Resources/langs/lang.strings -lang_out ./GeneratedFiles/lang_auto
+    }
 }
 
 CONFIG(release, debug|release) {
@@ -55,7 +60,11 @@ CONFIG(release, debug|release) {
 
     codegen_lang.target = lang_target
     codegen_lang.depends = ./../../Telegram/Resources/langs/lang.strings
-    codegen_lang.commands = mkdir -p ./GeneratedFiles && ./../ReleaseLang/MetaLang -lang_in ./../../Telegram/Resources/langs/lang.strings -lang_out ./GeneratedFiles/lang_auto
+    macx {
+        codegen_lang.commands = mkdir -p ./GeneratedFiles && ./../ReleaseLang/MetaLang.app/Contents/MacOS/MetaLang -lang_in ./../../Telegram/Resources/langs/lang.strings -lang_out ./GeneratedFiles/lang_auto
+    } else {
+        codegen_lang.commands = mkdir -p ./GeneratedFiles && ./../ReleaseLang/MetaLang -lang_in ./../../Telegram/Resources/langs/lang.strings -lang_out ./GeneratedFiles/lang_auto
+    }
 }
 
 file_style_basic.target = GeneratedFiles/styles/style_basic.cpp
@@ -186,8 +195,6 @@ SOURCES += \
     ./SourceFiles/mtproto/scheme_auto.cpp \
     ./SourceFiles/mtproto/session.cpp \
     ./SourceFiles/overview/overview_layout.cpp \
-	./SourceFiles/platform/linux/linux_libs.cpp \
-    ./SourceFiles/platform/linux/main_window_linux.cpp \
     ./SourceFiles/profile/profile_actions_widget.cpp \
     ./SourceFiles/profile/profile_block_widget.cpp \
     ./SourceFiles/profile/profile_cover_drop_area.cpp \
@@ -306,7 +313,7 @@ HEADERS += \
     ./SourceFiles/core/click_handler_types.h \
     ./SourceFiles/core/observer.h \
     ./SourceFiles/core/vector_of_moveable.h \
-	./SourceFiles/core/version.h \
+    ./SourceFiles/core/version.h \
     ./SourceFiles/data/data_abstract_structure.h \
     ./SourceFiles/data/data_drafts.h \
     ./SourceFiles/dialogs/dialogs_common.h \
@@ -343,8 +350,6 @@ HEADERS += \
     ./SourceFiles/mtproto/session.h \
     ./SourceFiles/overview/overview_layout.h \
     ./SourceFiles/platform/platform_main_window.h \
-	./SourceFiles/platform/linux/linux_libs.h \
-    ./SourceFiles/platform/linux/main_window_linux.h \
     ./SourceFiles/profile/profile_actions_widget.h \
     ./SourceFiles/profile/profile_block_widget.h \
     ./SourceFiles/profile/profile_cover_drop_area.h \
@@ -398,6 +403,16 @@ HEADERS += \
     ./SourceFiles/window/section_widget.h \
     ./SourceFiles/window/slide_animation.h \
     ./SourceFiles/window/top_bar_widget.h
+
+linux {
+SOURCES += \
+  ./SourceFiles/platform/linux/linux_libs.cpp \
+  ./SourceFiles/platform/linux/main_window_linux.cpp
+
+HEADERS += \
+  ./SourceFiles/platform/linux/linux_libs.h \
+  ./SourceFiles/platform/linux/main_window_linux.h
+}
 
 win32 {
 SOURCES += \
@@ -470,6 +485,7 @@ CONFIG(debug, debug|release) {
 include(qt_static.pri)
 
 INCLUDEPATH += \
+               /opt/local/include\
                /usr/local/include\
                /usr/local/include/opus\
                ./SourceFiles\
@@ -494,11 +510,16 @@ INCLUDEPATH += "/usr/include/libdbusmenu-glib-0.4"
 
 LIBS += -ldl -llzma -lopenal -lavformat -lavcodec -lswresample -lswscale -lavutil -lopus -lva
 LIBS += -lz -lcrypto -lssl
+
+linux {
 LIBS += $${QT_TDESKTOP_PATH}/plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.a \
         $${QT_TDESKTOP_PATH}/plugins/platforminputcontexts/libibusplatforminputcontextplugin.a \
         $${QT_TDESKTOP_PATH}/plugins/platforminputcontexts/libfcitxplatforminputcontextplugin.a
+
 LIBS += $${QT_TDESKTOP_PATH}/../libxkbcommon/lib/libxkbcommon.a
+
 LIBS += ./../../../Libraries/breakpad/src/client/linux/libbreakpad_client.a
+}
 
 RESOURCES += \
     ./Resources/telegram.qrc \

@@ -102,7 +102,6 @@ Building
     # Build Telegram Desktop
     mkdir -p "$srcdir/tdesktop/Linux/ReleaseIntermediate"
     cd "$srcdir/tdesktop/Linux/ReleaseIntermediate"
-    qmake CONFIG+=release "../../Telegram/Telegram.pro"
     qmake QT_TDESKTOP_VERSION=5.6.0 QT_TDESKTOP_PATH=$srcdir/qt CONFIG+=release "../../Telegram/Telegram.pro"
     make
 

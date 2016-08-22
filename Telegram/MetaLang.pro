@@ -15,7 +15,7 @@ CONFIG(release, debug|release) {
 CONFIG += plugin static c++14
 
 macx {
-    QMAKE_INFO_PLIST = ./SourceFiles/_other/Lang.plist
+    QMAKE_INFO_PLIST = ./Lang.plist
     QMAKE_LFLAGS += -framework Cocoa
 }
 

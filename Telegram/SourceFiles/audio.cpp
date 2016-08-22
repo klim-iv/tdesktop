@@ -22,35 +22,22 @@ Copyright (c) 2014-2016 John Preston, https://desktop.telegram.org
 
 #include "audio.h"
 
+#ifdef Q_OS_MAC
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#else
 #include <AL/al.h>
 #include <AL/alc.h>
 
 #define AL_ALEXT_PROTOTYPES
 #include <AL/alext.h>
+#endif // Q_OS_MAC
 
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/opt.h>
 #include <libswresample/swresample.h>
-
-#ifdef Q_OS_MAC
-#include <iconv.h>
-
-#undef iconv_open
-#undef iconv
-#undef iconv_close
-
-iconv_t iconv_open (const char* tocode, const char* fromcode) {
-	return libiconv_open(tocode, fromcode);
-}
-size_t iconv (iconv_t cd,  char* * inbuf, size_t *inbytesleft, char* * outbuf, size_t *outbytesleft) {
-	return libiconv(cd, inbuf, inbytesleft, outbuf, outbytesleft);
-}
-int iconv_close (iconv_t cd) {
-	return libiconv_close(cd);
-}
-#endif // Q_OS_MAC
 
 } // extern "C"
 
@@ -213,7 +200,9 @@ void audioInit() {
 	qRegisterMetaType<VoiceWaveform>();
 
 	player = new AudioPlayer();
+#ifndef Q_OS_MAC
 	alcDevicePauseSOFT(audioDevice);
+#endif
 
 	cSetHasAudioPlayer(true);
 }
@@ -1015,7 +1004,9 @@ void AudioPlayerFader::onPauseTimer() {
 	QMutexLocker lock(&_pauseMutex);
 	if (_pauseFlag) {
 		_paused = true;
+#ifndef Q_OS_MAC
 		alcDevicePauseSOFT(audioDevice);
+#endif
 	}
 }
 
@@ -1061,7 +1052,9 @@ void AudioPlayerFader::resumeDevice() {
 	emit stopPauseDevice();
 	if (_paused) {
 		_paused = false;
+#ifndef Q_OS_MAC
 		alcDeviceResumeSOFT(audioDevice);
+#endif
 	}
 }
 
