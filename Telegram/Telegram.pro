@@ -18,8 +18,8 @@ CONFIG(release, debug|release) {
 
 macx {
     QMAKE_INFO_PLIST = ./Telegram.plist
-    QMAKE_LFLAGS += -framework Cocoa
-    DEFINES += MAC_USE_BREAKPAD
+    QMAKE_LFLAGS += -framework Cocoa -L/usr/local/opt/openssl/lib -L/usr/local/lib -L/usr/local/opt/openal-soft/lib -L../../../breakpad/src
+    DEFINES += TDESKTOP_DISABLE_CRASH_REPORTS
 }
 
 linux {
@@ -508,8 +508,12 @@ INCLUDEPATH += "/usr/include/atk-1.0"
 INCLUDEPATH += "/usr/include/dee-1.0"
 INCLUDEPATH += "/usr/include/libdbusmenu-glib-0.4"
 
-LIBS += -ldl -llzma -lopenal -lavformat -lavcodec -lswresample -lswscale -lavutil -lopus -lva
+LIBS += -ldl -llzma -lavformat -lopenal -lavcodec -lswresample -lswscale -lavutil -lopus
 LIBS += -lz -lcrypto -lssl
+
+macx {
+LIBS += -lbreakpad
+}
 
 linux {
 LIBS += $${QT_TDESKTOP_PATH}/plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.a \
@@ -517,14 +521,25 @@ LIBS += $${QT_TDESKTOP_PATH}/plugins/platforminputcontexts/libcomposeplatforminp
         $${QT_TDESKTOP_PATH}/plugins/platforminputcontexts/libfcitxplatforminputcontextplugin.a
 
 LIBS += $${QT_TDESKTOP_PATH}/../libxkbcommon/lib/libxkbcommon.a
+LIBS += -lopenal -lva
+
 
 LIBS += ./../../../Libraries/breakpad/src/client/linux/libbreakpad_client.a
 }
 
 RESOURCES += \
     ./Resources/telegram.qrc \
-    ./Resources/telegram_linux.qrc \
     ./Resources/telegram_emojis.qrc
+
+linux {
+RESOURCES += \
+    ./Resources/telegram_linux.qrc \
+}
+
+macx {
+RESOURCES += \
+    ./Resources/telegram_mac.qrc \
+}
 
 OTHER_FILES += \
     ./Resources/basic_types.style \
