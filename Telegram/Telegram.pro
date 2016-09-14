@@ -20,6 +20,7 @@ macx {
     QMAKE_INFO_PLIST = ./Telegram.plist
     QMAKE_LFLAGS += -framework Cocoa -L/usr/local/opt/openssl/lib -L/usr/local/lib -L/usr/local/opt/openal-soft/lib -L../../../breakpad/src
     DEFINES += TDESKTOP_DISABLE_CRASH_REPORTS
+    ICON = Resources/macx/icon.icns
 }
 
 linux {

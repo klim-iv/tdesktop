@@ -5,11 +5,13 @@
 	<key>CFBundleExecutable</key>
 	<string>Telegram</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Telegram Desktop messaging app</string>
+	<string>MyTelegram Desktop messaging app</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>CFBundleIconFile</key>
+	<string>@ICON@</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(TDESKTOP_VERSION)</string>
 	<key>CFBundleSignature</key>
