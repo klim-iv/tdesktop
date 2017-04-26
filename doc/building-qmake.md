@@ -28,7 +28,7 @@ Preparation
     wget http://xkbcommon.org/download/libxkbcommon-0.6.1.tar.xz
     tar -xvf libxkbcommon-0.6.1.tar.xz
     cd libxkbcommon-0.6.1
-    ./configure --prefix=$srcdir/libxkbcommon --disable-x11
+    ./configure --prefix=$srcdir/libxkbcommon --disable-x11 CFLAGS=-fPIC
     make install
     export PKG_CONFIG_PATH=$srcdir/libxkbcommon/lib/pkgconfig
 
@@ -48,8 +48,6 @@ Preparation
 
     pushd qtbase
     git checkout v5.6.0
-    popd
-
     git apply $srcdir/tdesktop/Telegram/Patches/qtbase_5_6_0.diff
 
     popd
