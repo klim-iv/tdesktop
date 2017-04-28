@@ -584,7 +584,7 @@ public:
 		, _codec(0)
 		, _codecContext(0)
 		, _streamId(0)
-		, _frame(0)
+		//, _frame(0)
 		, _opened(false)
 		, _hadFrame(false)
 		, _frameRead(false)
@@ -597,29 +597,31 @@ public:
 		, _frameMs(0)
 		, _nextFrameDelay(0)
 		, _currentFrameDelay(0) {
-		_frame = av_frame_alloc();
-		av_init_packet(&_avpkt);
+		//_frame = av_frame_alloc();
+		//av_init_packet(&_avpkt);
 		_avpkt.data = NULL;
 		_avpkt.size = 0;
 	}
 
 	bool readNextFrame() {
 		if (_frameRead) {
-			av_frame_unref(_frame);
+			//av_frame_unref(_frame);
 			_frameRead = false;
 		}
 
 		int res;
 		while (true) {
+/*
 			if (_avpkt.size > 0) { // previous packet not finished
 				res = 0;
 			} else if ((res = av_read_frame(_fmtContext, &_avpkt)) < 0) {
 				if (res != AVERROR_EOF || !_hadFrame) {
-					char err[AV_ERROR_MAX_STRING_SIZE] = { 0 };
-					LOG(("Gif Error: Unable to av_read_frame() %1, error %2, %3").arg(logData()).arg(res).arg(av_make_error_string(err, sizeof(err), res)));
+					char err[PATH_MAX] = { 0 };
+					//LOG(("Gif Error: Unable to av_read_frame() %1, error %2, %3").arg(logData()).arg(res).arg(av_make_error_string(err, sizeof(err), res)));
 					return false;
 				}
 			}
+*/
 
 			bool finished = (res < 0);
 			if (finished) {
@@ -632,9 +634,9 @@ public:
 			int32 got_frame = 0;
 			int32 decoded = _avpkt.size;
 			if (_avpkt.stream_index == _streamId) {
-				if ((res = avcodec_decode_video2(_codecContext, _frame, &got_frame, &_avpkt)) < 0) {
+				/*if ((res = avcodec_decode_video2(_codecContext, _frame, &got_frame, &_avpkt)) < 0) {
 					char err[AV_ERROR_MAX_STRING_SIZE] = { 0 };
-					LOG(("Gif Error: Unable to avcodec_decode_video2() %1, error %2, %3").arg(logData()).arg(res).arg(av_make_error_string(err, sizeof(err), res)));
+					//LOG(("Gif Error: Unable to avcodec_decode_video2() %1, error %2, %3").arg(logData()).arg(res).arg(av_make_error_string(err, sizeof(err), res)));
 
 					if (res == AVERROR_INVALIDDATA) { // try to skip bad packet
 						freePacket();
@@ -650,7 +652,7 @@ public:
 					_avpkt.data = NULL;
 					_avpkt.size = 0;
 					continue;
-				}
+				}*/
 				if (res > 0) decoded = res;
 			}
 			if (!finished) {
@@ -660,7 +662,7 @@ public:
 			}
 
 			if (got_frame) {
-				int64 duration = av_frame_get_pkt_duration(_frame);
+				/*int64 duration = av_frame_get_pkt_duration(_frame);
 				int64 framePts = (_frame->pkt_pts == AV_NOPTS_VALUE) ? _frame->pkt_dts : _frame->pkt_pts;
 				int64 frameMs = (framePts * 1000LL * _fmtContext->streams[_streamId]->time_base.num) / _fmtContext->streams[_streamId]->time_base.den;
 				_currentFrameDelay = _nextFrameDelay;
@@ -675,16 +677,17 @@ public:
 				_frameMs = frameMs;
 
 				_hadFrame = _frameRead = true;
-				return true;
+				return true;*/
+				return false;
 			}
-
+/*
 			if (finished) {
 				if ((res = avformat_seek_file(_fmtContext, _streamId, std::numeric_limits<int64_t>::min(), 0, std::numeric_limits<int64_t>::max(), 0)) < 0) {
 					if ((res = av_seek_frame(_fmtContext, _streamId, 0, AVSEEK_FLAG_BYTE)) < 0) {
 						if ((res = av_seek_frame(_fmtContext, _streamId, 0, AVSEEK_FLAG_FRAME)) < 0) {
 							if ((res = av_seek_frame(_fmtContext, _streamId, 0, 0)) < 0) {
-								char err[AV_ERROR_MAX_STRING_SIZE] = { 0 };
-								LOG(("Gif Error: Unable to av_seek_frame() to the start %1, error %2, %3").arg(logData()).arg(res).arg(av_make_error_string(err, sizeof(err), res)));
+								char err[PATH_MAX] = { 0 };
+								//LOG(("Gif Error: Unable to av_seek_frame() to the start %1, error %2, %3").arg(logData()).arg(res).arg(av_make_error_string(err, sizeof(err), res)));
 								return false;
 							}
 						}
@@ -694,6 +697,7 @@ public:
 				_hadFrame = false;
 				_frameMs = 0;
 			}
+*/
 		}
 
 		return false;
@@ -704,20 +708,21 @@ public:
 		_frameRead = false;
 
 		if (!_width || !_height) {
-			_width = _frame->width;
+			return false;
+			/*_width = _frame->width;
 			_height = _frame->height;
 			if (!_width || !_height) {
 				LOG(("Gif Error: Bad frame size %1").arg(logData()));
 				return false;
-			}
+			}*/
 		}
 
 		QSize toSize(size.isEmpty() ? QSize(_width, _height) : size);
 		if (to.isNull() || to.size() != toSize) {
 			to = QImage(toSize, QImage::Format_ARGB32);
 		}
-		hasAlpha = (_frame->format == AV_PIX_FMT_BGRA || (_frame->format == -1 && _codecContext->pix_fmt == AV_PIX_FMT_BGRA));
-		if (_frame->width == toSize.width() && _frame->height == toSize.height() && hasAlpha) {
+		//hasAlpha = (_frame->format == AV_PIX_FMT_BGRA || (_frame->format == -1 && _codecContext->pix_fmt == AV_PIX_FMT_BGRA));
+		/*if (_frame->width == toSize.width() && _frame->height == toSize.height() && hasAlpha) {
 			int32 sbpl = _frame->linesize[0], dbpl = to.bytesPerLine(), bpl = qMin(sbpl, dbpl);
 			uchar *s = _frame->data[0], *d = to.bits();
 			for (int32 i = 0, l = _frame->height; i < l; ++i) {
@@ -734,9 +739,9 @@ public:
 				LOG(("Gif Error: Unable to sws_scale to good size %1, height %2, should be %3").arg(logData()).arg(res).arg(_swsSize.height()));
 				return false;
 			}
-		}
+		}*/
 
-		av_frame_unref(_frame);
+		//av_frame_unref(_frame);
 		return true;
 	}
 
@@ -754,9 +759,9 @@ public:
 			LOG(("Gif Error: Unable to open device %1").arg(logData()));
 			return false;
 		}
-		_ioBuffer = (uchar*)av_malloc(AVBlockSize);
-		_ioContext = avio_alloc_context(_ioBuffer, AVBlockSize, 0, static_cast<void*>(this), &FFMpegReaderImplementation::_read, 0, &FFMpegReaderImplementation::_seek);
-		_fmtContext = avformat_alloc_context();
+//		_ioBuffer = (uchar*)av_malloc(AVBlockSize);
+//		_ioContext = avio_alloc_context(_ioBuffer, AVBlockSize, 0, static_cast<void*>(this), &FFMpegReaderImplementation::_read, 0, &FFMpegReaderImplementation::_seek);
+//		_fmtContext = avformat_alloc_context();
 		if (!_fmtContext) {
 			LOG(("Gif Error: Unable to avformat_alloc_context %1").arg(logData()));
 			return false;
@@ -764,23 +769,23 @@ public:
 		_fmtContext->pb = _ioContext;
 
 		int res = 0;
-		char err[AV_ERROR_MAX_STRING_SIZE] = { 0 };
+		char err[PATH_MAX] = { 0 };
 		if ((res = avformat_open_input(&_fmtContext, 0, 0, 0)) < 0) {
 			_ioBuffer = 0;
 
-			LOG(("Gif Error: Unable to avformat_open_input %1, error %2, %3").arg(logData()).arg(res).arg(av_make_error_string(err, sizeof(err), res)));
+			//LOG(("Gif Error: Unable to avformat_open_input %1, error %2, %3").arg(logData()).arg(res).arg(av_make_error_string(err, sizeof(err), res)));
 			return false;
 		}
 		_opened = true;
 
 		if ((res = avformat_find_stream_info(_fmtContext, 0)) < 0) {
-			LOG(("Gif Error: Unable to avformat_find_stream_info %1, error %2, %3").arg(logData()).arg(res).arg(av_make_error_string(err, sizeof(err), res)));
+			//LOG(("Gif Error: Unable to avformat_find_stream_info %1, error %2, %3").arg(logData()).arg(res).arg(av_make_error_string(err, sizeof(err), res)));
 			return false;
 		}
 
-		_streamId = av_find_best_stream(_fmtContext, AVMEDIA_TYPE_VIDEO, -1, -1, 0, 0);
+//		_streamId = av_find_best_stream(_fmtContext, AVMEDIA_TYPE_VIDEO, -1, -1, 0, 0);
 		if (_streamId < 0) {
-			LOG(("Gif Error: Unable to av_find_best_stream %1, error %2, %3").arg(logData()).arg(_streamId).arg(av_make_error_string(err, sizeof(err), _streamId)));
+			//LOG(("Gif Error: Unable to av_find_best_stream %1, error %2, %3").arg(logData()).arg(_streamId).arg(av_make_error_string(err, sizeof(err), _streamId)));
 			return false;
 		}
 
@@ -789,9 +794,9 @@ public:
 		_codec = avcodec_find_decoder(_codecContext->codec_id);
 
 		if (onlyGifv) {
-			if (av_find_best_stream(_fmtContext, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0) >= 0) { // should be no audio stream
-				return false;
-			}
+//			if (av_find_best_stream(_fmtContext, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0) >= 0) { // should be no audio stream
+//				return false;
+//			}
 			if (dataSize() > AnimationInMemory) {
 				return false;
 			}
@@ -799,9 +804,9 @@ public:
 				return false;
 			}
 		}
-		av_opt_set_int(_codecContext, "refcounted_frames", 1, 0);
+//		av_opt_set_int(_codecContext, "refcounted_frames", 1, 0);
 		if ((res = avcodec_open2(_codecContext, _codec, 0)) < 0) {
-			LOG(("Gif Error: Unable to avcodec_open2 %1, error %2, %3").arg(logData()).arg(res).arg(av_make_error_string(err, sizeof(err), res)));
+			//LOG(("Gif Error: Unable to avcodec_open2 %1, error %2, %3").arg(logData()).arg(res).arg(av_make_error_string(err, sizeof(err), res)));
 			return false;
 		}
 
@@ -809,26 +814,28 @@ public:
 	}
 
 	int32 duration() const {
-		if (_fmtContext->streams[_streamId]->duration == AV_NOPTS_VALUE) return 0;
+		//if (_fmtContext->streams[_streamId]->duration == AV_NOPTS_VALUE) return 0;
 		return (_fmtContext->streams[_streamId]->duration * _fmtContext->streams[_streamId]->time_base.num) / _fmtContext->streams[_streamId]->time_base.den;
 	}
 
 	~FFMpegReaderImplementation() {
 		if (_frameRead) {
-			av_frame_unref(_frame);
+			//av_frame_unref(_frame);
 			_frameRead = false;
 		}
-		if (_ioContext) av_free(_ioContext);
-		if (_codecContext) avcodec_close(_codecContext);
-		if (_swsContext) sws_freeContext(_swsContext);
+//		if (_ioContext) av_free(_ioContext);
+//		if (_codecContext) avcodec_close(_codecContext);
+		//if (_swsContext) sws_freeContext(_swsContext);
+/*
 		if (_opened) {
 			avformat_close_input(&_fmtContext);
 		} else if (_ioBuffer) {
 			av_free(_ioBuffer);
 		}
 		if (_fmtContext) avformat_free_context(_fmtContext);
-		av_frame_free(&_frame);
+		//av_frame_free(&_frame);
 		freePacket();
+*/
 	}
 
 private:
@@ -838,7 +845,7 @@ private:
 	AVCodec *_codec;
 	AVCodecContext *_codecContext;
 	int32 _streamId;
-	AVFrame *_frame;
+	//AVFrame *_frame;
 	bool _opened, _hadFrame, _frameRead;
 
 	AVPacket _avpkt;
@@ -857,7 +864,7 @@ private:
 			_avpkt.size = _packetSize;
 			_avpkt.data = _packetData;
 			_packetWas = false;
-			av_packet_unref(&_avpkt);
+			//av_packet_unref(&_avpkt);
 		}
 	}
 
@@ -990,9 +997,10 @@ public:
 			}
 		}
 
-		_implementation = new FFMpegReaderImplementation(_location, &_data);
+//		_implementation = new FFMpegReaderImplementation(_location, &_data);
 //		_implementation = new QtGifReaderImplementation(_location, &_data);
-		return _implementation->start(false);
+//		return _implementation->start(false);
+		return false;
 	}
 
 	ClipProcessResult error() {
@@ -1301,7 +1309,7 @@ ClipReadManager::~ClipReadManager() {
 MTPDocumentAttribute clipReadAnimatedAttributes(const QString &fname, const QByteArray &data, QImage &cover) {
 	FileLocation localloc(StorageFilePartial, fname);
 	QByteArray localdata(data);
-
+/*
 	FFMpegReaderImplementation *reader = new FFMpegReaderImplementation(&localloc, &localdata);
 	if (reader->start(true)) {
 		bool hasAlpha = false;
@@ -1322,5 +1330,6 @@ MTPDocumentAttribute clipReadAnimatedAttributes(const QString &fname, const QByt
 		}
 	}
 	delete reader;
+*/
 	return MTP_documentAttributeFilename(MTP_string(fname));
 }

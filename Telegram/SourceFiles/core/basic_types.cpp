@@ -279,16 +279,16 @@ namespace ThirdParty {
 		CRYPTO_set_dynlock_lock_callback(_sslLockFunction);
 		CRYPTO_set_dynlock_destroy_callback(_sslDestroyFunction);
 
-		av_register_all();
-		avcodec_register_all();
+		//av_register_all();
+		//avcodec_register_all();
 
-		av_lockmgr_register(_ffmpegLockManager);
+		//av_lockmgr_register(_ffmpegLockManager);
 
 		_sslInited = true;
 	}
 
 	void finish() {
-		av_lockmgr_register(0);
+		//av_lockmgr_register(0);
 
 		delete[] _sslLocks;
 		_sslLocks = 0;

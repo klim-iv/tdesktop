@@ -509,7 +509,10 @@ INCLUDEPATH += "/usr/include/atk-1.0"
 INCLUDEPATH += "/usr/include/dee-1.0"
 INCLUDEPATH += "/usr/include/libdbusmenu-glib-0.4"
 
-LIBS += -ldl -llzma -lavformat -lopenal -lavcodec -lswresample -lswscale -lavutil -lopus
+LIBS += -ldl -llzma
+#LIBS += -lavformat -lopenal
+#LIBS += -lavcodec -lavutil -lopus
+#LIBS += -lswresample -lswscale
 LIBS += -lz -lcrypto -lssl
 
 macx {
@@ -522,7 +525,8 @@ LIBS += $${QT_TDESKTOP_PATH}/plugins/platforminputcontexts/libcomposeplatforminp
         $${QT_TDESKTOP_PATH}/plugins/platforminputcontexts/libfcitxplatforminputcontextplugin.a
 
 LIBS += $${QT_TDESKTOP_PATH}/../libxkbcommon/lib/libxkbcommon.a
-LIBS += -lopenal -lva
+LIBS += -lopenal
+LIBS += -lva
 
 
 LIBS += ./../../../Libraries/breakpad/src/client/linux/libbreakpad_client.a
