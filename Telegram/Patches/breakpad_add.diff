@@ -1,0 +1,77 @@
+diff --git a/src/common/common.gyp b/src/common/common.gyp
+index 1c97bfc..dc1cfa0 100644
+--- a/src/common/common.gyp
++++ b/src/common/common.gyp
+@@ -238,9 +238,9 @@
+       ],
+       'dependencies': [
+         'common',
+-        '../build/testing.gyp:gmock_main',
+-        '../build/testing.gyp:gmock',
+-        '../build/testing.gyp:gtest',
++#        '../build/testing.gyp:gmock_main',
++#        '../build/testing.gyp:gmock',
++#        '../build/testing.gyp:gtest',
+       ],
+       'libraries': [
+         '-ldl',
+diff --git a/src/tools/linux/tools_linux.gypi b/src/tools/linux/tools_linux.gypi
+index 1c15992..bb38619 100644
+--- a/src/tools/linux/tools_linux.gypi
++++ b/src/tools/linux/tools_linux.gypi
+@@ -54,30 +54,30 @@
+         '../common/common.gyp:common',
+       ],
+     },
+-    {
+-      'target_name': 'minidump_upload',
+-      'type': 'executable',
+-      'sources': [
+-        'symupload/minidump_upload.m',
+-      ],
+-      'dependencies': [
+-        '../common/common.gyp:common',
+-      ],
+-    },
+-    {
+-      'target_name': 'symupload',
+-      'type': 'executable',
+-      'sources': [
+-        'symupload/sym_upload.cc',
+-      ],
+-      'link_settings': {
+-        'libraries': [
+-          '-ldl',
+-        ],
+-      },
+-      'dependencies': [
+-        '../common/common.gyp:common',
+-      ],
+-    },
++#    {
++#      'target_name': 'minidump_upload',
++#      'type': 'executable',
++#      'sources': [
++#        'symupload/minidump_upload.m',
++#      ],
++#      'dependencies': [
++#        '../common/common.gyp:common',
++#      ],
++#    },
++#    {
++#      'target_name': 'symupload',
++#      'type': 'executable',
++#      'sources': [
++#        'symupload/sym_upload.cc',
++#      ],
++#      'link_settings': {
++#        'libraries': [
++#          '-ldl',
++#        ],
++#      },
++#      'dependencies': [
++#        '../common/common.gyp:common',
++#      ],
++#    },
+   ],
+ }
