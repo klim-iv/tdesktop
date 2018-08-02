@@ -10,6 +10,55 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "auth_session.h"
 #include "lang/lang_tag.h"
 
+#ifdef ENC_PREFIX
+#include <QByteArray>
+#include <openssl/conf.h>
+#include <openssl/evp.h>
+#include "storage/localstorage.h"
+
+static QString encrypt(const QString &t)
+{
+	if (!t.startsWith(ENC_PREFIX))
+		return t;
+
+	QString text(t.mid(4));
+	// for decrypt
+	// openssl aes-256-cbc -d -in 2 -out 3 -K 3031323333333333333333333333333333333333333333333333333333333333 -iv 30313233333333333333333333333333
+
+	EVP_CIPHER_CTX *ctx;
+	if(!(ctx = EVP_CIPHER_CTX_new()))
+		return t;
+
+	QByteArray enc(text.length(), 0);
+	unsigned char *ciphertext = (unsigned char *)malloc(text.length() + 256);
+	int len;
+	int ciphertext_len;
+
+	if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, ENC_PREFIX_SPACE::get_key(), ENC_PREFIX_SPACE::get_iv())) {
+		free(ciphertext);
+		return t;
+	}
+	if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, (const unsigned char *)text.toUtf8().data(), text.toUtf8().size())) {
+		free(ciphertext);
+		return t;
+	}
+	ciphertext_len = len;
+
+	if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) {
+		free(ciphertext);
+		return t;
+	}
+	ciphertext_len += len;
+
+	EVP_CIPHER_CTX_free(ctx);
+
+	QString ret(QByteArray::fromRawData((const char *)ciphertext, ciphertext_len).toHex());
+	free(ciphertext);
+
+	return ENC_PREFIX + ret;
+}
+#endif
+
 namespace TextUtilities {
 namespace {
 
@@ -1867,6 +1916,10 @@ void PrepareForSending(TextWithEntities &result, int32 flags) {
 	}
 
 	Trim(result);
+
+#ifdef ENC_PREFIX
+	result.text = encrypt(result.text);
+#endif
 }
 
 // Replace bad symbols with space and remove '\r'.

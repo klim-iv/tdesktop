@@ -31,6 +31,30 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "data/data_session.h"
 #include "history/history.h"
 
+#ifdef ENC_PREFIX
+#include <QByteArray>
+#include <openssl/conf.h>
+#include <openssl/evp.h>
+
+namespace ENC_PREFIX_SPACE {
+	char _key [33] = "00000000000000000000000000000000";
+	char _iv [17] = "0000000000000000";
+
+	static void set_key(const char *key, int len) {
+		hashSha256(key, len, _key);
+		memcpy(_iv, _key, sizeof(_iv) - 1);
+	};
+
+	unsigned char *get_key() {
+		return (unsigned char *) _key;
+	};
+
+	unsigned char *get_iv() {
+		return (unsigned char *) _iv;
+	};
+}
+#endif
+
 extern "C" {
 #include <openssl/evp.h>
 } // extern "C"
@@ -2652,10 +2676,16 @@ void reset() {
 bool checkPasscode(const QByteArray &passcode) {
 	auto checkKey = MTP::AuthKeyPtr();
 	createLocalKey(passcode, &_passKeySalt, &checkKey);
+#ifdef ENC_PREFIX
+		ENC_PREFIX_SPACE::set_key(passcode.data(), passcode.size());
+#endif
 	return checkKey->equals(PassKey);
 }
 
 void setPasscode(const QByteArray &passcode) {
+#ifdef ENC_PREFIX
+		ENC_PREFIX_SPACE::set_key(passcode.data(), passcode.size());
+#endif
 	createLocalKey(passcode, &_passKeySalt, &PassKey);
 
 	EncryptedDescriptor passKeyData(kLocalKeySize);
@@ -2670,6 +2700,9 @@ void setPasscode(const QByteArray &passcode) {
 }
 
 ReadMapState readMap(const QByteArray &pass) {
+#ifdef ENC_PREFIX
+		ENC_PREFIX_SPACE::set_key(pass.data(), pass.size());
+#endif
 	ReadMapState result = _readMap(pass);
 	if (result == ReadMapFailed) {
 		_mapChanged = true;

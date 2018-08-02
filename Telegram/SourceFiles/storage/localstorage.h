@@ -11,6 +11,18 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "storage/file_download.h"
 #include "auth_session.h"
 
+
+#ifdef ENC_PREFIX
+#include <QByteArray>
+#include <openssl/conf.h>
+#include <openssl/evp.h>
+namespace ENC_PREFIX_SPACE {
+	unsigned char *get_key();
+	unsigned char *get_iv();
+}
+#endif
+
+
 namespace Window {
 namespace Theme {
 struct Cached;
