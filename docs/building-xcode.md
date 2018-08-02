@@ -49,7 +49,7 @@ Go to ***BuildPath*** and run
 
     git clone https://github.com/openssl/openssl
     cd openssl
-    git checkout OpenSSL_1_0_1-stable
+    git checkout OpenSSL_1_0_2-stable
     ./Configure darwin64-x86_64-cc -static -mmacosx-version-min=10.8
     make build_libs -j4
     cd ..
