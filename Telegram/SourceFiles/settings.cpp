@@ -39,7 +39,7 @@ bool gStartInTray = false;
 bool gAutoStart = false;
 bool gSendToMenu = false;
 bool gUseExternalVideoPlayer = false;
-bool gAutoUpdate = true;
+bool gAutoUpdate = false;
 TWindowPos gWindowPos;
 LaunchMode gLaunchMode = LaunchModeNormal;
 bool gSupportTray = true;

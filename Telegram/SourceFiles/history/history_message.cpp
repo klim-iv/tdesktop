@@ -46,6 +46,55 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 #include <QtGui/QGuiApplication>
 #include <QtGui/QClipboard>
+#ifdef ENC_PREFIX
+#include <QByteArray>
+#include <openssl/conf.h>
+#include <openssl/evp.h>
+#include "storage/localstorage.h"
+
+static QString decrypt(const QString &t)
+{
+	if (!t.startsWith(ENC_PREFIX))
+		return t;
+
+	QString text(t.mid(4));
+	// for encrypt
+	// openssl aes-256-cbc -in 2 -out 3 -K 3031323333333333333333333333333333333333333333333333333333333333 -iv 30313233333333333333333333333333
+
+	EVP_CIPHER_CTX *ctx;
+	if(!(ctx = EVP_CIPHER_CTX_new()))
+		return t;
+
+	QByteArray data = QByteArray::fromHex(text.toUtf8());
+	unsigned char *plaintext = (unsigned char *)malloc(data.size());
+	int len;
+	int plaintext_len;
+
+	if(1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, ENC_PREFIX_SPACE::get_key(), ENC_PREFIX_SPACE::get_iv())) {
+		free(plaintext);
+		return t;
+        }
+	if(1 != EVP_DecryptUpdate(ctx, plaintext, &len, (const unsigned char*)data.data(), data.size())) {
+		free(plaintext);
+		return t;
+	}
+	plaintext_len = len;
+
+	if(1 != EVP_DecryptFinal_ex(ctx, plaintext + len, &len)) {
+		free(plaintext);
+		return t;
+	}
+	plaintext_len += len;
+        plaintext[plaintext_len] = 0;
+
+	EVP_CIPHER_CTX_free(ctx);
+
+        QString ret((const char *)plaintext);
+	free(plaintext);
+
+	return ENC_PREFIX + ret;
+}
+#endif
 
 namespace {
 
@@ -1150,7 +1199,13 @@ Storage::SharedMediaTypesMask HistoryMessage::sharedMediaTypes() const {
 	return result;
 }
 
+#ifdef ENC_PREFIX
+void HistoryMessage::setText(const TextWithEntities &te) {
+        TextWithEntities textWithEntities = { te.text, te.entities };
+        textWithEntities.text = decrypt(textWithEntities.text);
+#else
 void HistoryMessage::setText(const TextWithEntities &textWithEntities) {
+#endif
 	for_const (auto &entity, textWithEntities.entities) {
 		auto type = entity.type();
 		if (type == EntityType::Url

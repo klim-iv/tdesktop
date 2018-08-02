@@ -30,13 +30,14 @@
 	url = https://github.com/desktop-app/lib_base.git
 [submodule "Telegram/gyp/helpers"]
 	path = Telegram/gyp/helpers
-	url = https://github.com/desktop-app/gyp_helpers.git
+	url = https://github.com/klim-iv/gyp_helpers.git
 [submodule "Telegram/codegen"]
 	path = Telegram/codegen
 	url = https://github.com/desktop-app/codegen.git
 [submodule "Telegram/lib_ui"]
 	path = Telegram/lib_ui
-	url = https://github.com/desktop-app/lib_ui.git
+	url = https://github.com/klim-iv/lib_ui.git
+	branch = cmake
 [submodule "Telegram/lib_rlottie"]
 	path = Telegram/lib_rlottie
 	url = https://github.com/desktop-app/lib_rlottie.git

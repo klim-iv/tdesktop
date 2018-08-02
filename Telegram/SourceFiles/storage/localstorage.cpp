@@ -43,6 +43,10 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include <QtCore/QtEndian>
 #include <QtCore/QDirIterator>
 
+#ifdef ENC_PREFIX
+#include "ui/text/text_entity.h"
+#endif
+
 extern "C" {
 #include <openssl/evp.h>
 } // extern "C"
@@ -2817,10 +2821,16 @@ void reset() {
 bool checkPasscode(const QByteArray &passcode) {
 	auto checkKey = MTP::AuthKeyPtr();
 	createLocalKey(passcode, &_passKeySalt, &checkKey);
+#ifdef ENC_PREFIX
+		ENC_PREFIX_SPACE::set_key(passcode.data(), passcode.size());
+#endif
 	return checkKey->equals(PassKey);
 }
 
 void setPasscode(const QByteArray &passcode) {
+#ifdef ENC_PREFIX
+		ENC_PREFIX_SPACE::set_key(passcode.data(), passcode.size());
+#endif
 	createLocalKey(passcode, &_passKeySalt, &PassKey);
 
 	EncryptedDescriptor passKeyData(kLocalKeySize);
@@ -2880,6 +2890,9 @@ void FilterLegacyFiles(FnMut<void(base::flat_set<QString>&&)> then) {
 }
 
 ReadMapState readMap(const QByteArray &pass) {
+#ifdef ENC_PREFIX
+		ENC_PREFIX_SPACE::set_key(pass.data(), pass.size());
+#endif
 	ReadMapState result = _readMap(pass);
 	if (result == ReadMapFailed) {
 		_mapChanged = true;

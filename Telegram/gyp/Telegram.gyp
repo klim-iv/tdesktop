@@ -16,6 +16,7 @@
       'minizip_loc': '<(third_party_loc)/minizip',
       'sp_media_key_tap_loc': '<(third_party_loc)/SPMediaKeyTap',
       'emoji_suggestions_loc': '<(third_party_loc)/emoji_suggestions',
+      'lib_ui_loc': '<(DEPTH)/lib_ui',
       'style_files': [
         '<(src_loc)/boxes/boxes.style',
         '<(src_loc)/calls/calls.style',
@@ -105,6 +106,7 @@
       '<(minizip_loc)',
       '<(sp_media_key_tap_loc)',
       '<(emoji_suggestions_loc)',
+      '<(lib_ui_loc)',
     ],
     'sources': [
       '<@(qrc_files)',

@@ -28,6 +28,7 @@ namespace Storage {
 class EncryptionKey;
 } // namespace Storage
 
+
 namespace Window {
 namespace Theme {
 struct Object;
