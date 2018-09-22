@@ -85,11 +85,11 @@ Open **x86 Native Tools Command Prompt for VS 2017.bat**, go to ***BuildPath*** 
 
     git clone git://repo.or.cz/openal-soft.git
     cd openal-soft
-    git checkout 18bb46163af
+    git checkout cae4b1a
     cd build
     cmake -G "Visual Studio 15 2017" -D LIBTYPE:STRING=STATIC -D FORCE_STATIC_VCRT:STRING=ON ..
-    msbuild OpenAL32.vcxproj /property:Configuration=Debug
-    msbuild OpenAL32.vcxproj /property:Configuration=Release
+    msbuild OpenAL.vcxproj /property:Configuration=Debug
+    msbuild OpenAL.vcxproj /property:Configuration=Release
     cd ..\..
 
     git clone https://github.com/google/breakpad
@@ -137,13 +137,14 @@ Open **x86 Native Tools Command Prompt for VS 2017.bat**, go to ***BuildPath*** 
     git checkout v5.6.2
     cd ..\qtbase
     git checkout v5.6.2
-    git apply ../../../tdesktop/Telegram/Patches/qtbase_5_6_2.diff
+    git apply ../../../tdesktop/Telegram/Patches/qtbase_5_6_2.win.diff
     cd ..
 
-    configure -debug-and-release -force-debug-info -opensource -confirm-license -static -I "%cd%\..\openssl\Release\include" -no-opengl -openssl-linked OPENSSL_LIBS_DEBUG="%cd%\..\openssl\Debug\lib\ssleay32.lib %cd%\..\openssl\Debug\lib\libeay32.lib" OPENSSL_LIBS_RELEASE="%cd%\..\openssl\Release\lib\ssleay32.lib %cd%\..\openssl\Release\lib\libeay32.lib" -mp -nomake examples -nomake tests -platform win32-msvc2015
+    configure -release -opensource -confirm-license -static -I "%cd%\..\openssl\Release\include" -no-opengl -openssl-linked OPENSSL_LIBS="%cd%\..\openssl\Release\include\lib\ssleay32.lib %cd%\..\openssl\Release\include\lib\libeay32.lib" -mp -nomake examples -nomake tests -platform win32-msvc2015
 
-    jom -j4
-    jom -j4 install
+    nmake
+    nmake install  # additional info in https://github.com/telegramdesktop/tdesktop/issues/3702 , https://github.com/telegramdesktop/tdesktop/issues/5091
+    copy ..\breakpad\src\out\Release\obj\client\windows\common.lib qtbase\lib
     cd ..
 
     cd ../tdesktop/Telegram
