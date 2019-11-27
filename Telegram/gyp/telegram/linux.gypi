@@ -34,7 +34,7 @@
       '-lva-drm',
       '-lva',
       '-lvdpau',
-      '-ldrm',
+      '-lbsd',
       '-lz',
       '-lXi',
       '-lXext',
@@ -54,19 +54,26 @@
       '-Wl,-wrap,clock_gettime',
       '-Wl,--no-as-needed,-lrt',
       '-Wl,-Bstatic',
+      '-Wl,--allow-multiple-definition',
     ],
     'configurations': {
       'Release': {
         'cflags_c': [
           '-Ofast',
+          '-no-pie',
+          '-fPIC',
           '-fno-strict-aliasing',
         ],
         'cflags_cc': [
           '-Ofast',
+          '-no-pie',
+          '-fPIC',
           '-fno-strict-aliasing',
         ],
         'ldflags': [
           '-Ofast',
+          '-no-pie',
+          '-fPIC',
         ],
       },
     },
