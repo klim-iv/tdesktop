@@ -16,6 +16,10 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "base/openssl_help.h"
 #include "base/random.h"
 
+#ifdef ENC_PREFIX
+#include "ui/text/text_entity.h"
+#endif
+
 namespace Storage {
 
 struct PasscodeWrap final {
@@ -329,6 +333,10 @@ Domain::Domain(not_null<Main::Domain*> owner, const QString &dataName)
 Domain::~Domain() = default;
 
 StartResult Domain::start(PasscodeDerivation derived) {
+#ifdef ENC_PREFIX
+    ENC_PREFIX_SPACE::set_key(derived.data(), derived.size());
+#endif
+
 	const auto modern = startModern(derived);
 	if (modern == StartModernResult::Success) {
 		if (_keyData->legacy || _keyDataDirty || _oldVersion < AppVersion) {
@@ -363,6 +371,11 @@ void Domain::startAdded(
 void Domain::startWithSingleAccount(
 		const QByteArray &passcode,
 		std::unique_ptr<Main::Account> account) {
+
+#ifdef ENC_PREFIX
+    ENC_PREFIX_SPACE::set_key(passcode.data(), passcode.size());
+#endif
+
 	Expects(account != nullptr);
 
 	if (auto localKey = account->local().peekLegacyLocalKey()) {
@@ -395,6 +408,10 @@ void Domain::generateLocalKey() {
 
 void Domain::installOpenWrap(KeyData &data) const {
 	Expects(_localKey != nullptr);
+
+#ifdef ENC_PREFIX
+    ENC_PREFIX_SPACE::set_key(_localKey.data(), _localKey.size());
+#endif
 
 	data.openSalt = RandomSalt();
 	const auto wrapKey = CreateLocalKey(QByteArray(), data.openSalt);
@@ -469,6 +486,10 @@ MTP::AuthKeyPtr Domain::installPasscodeWrap(
 void Domain::migrateFromLegacy(const QByteArray &passcode) {
 	Expects(_keyData->legacy);
 	Expects(_localKey != nullptr);
+
+#ifdef ENC_PREFIX
+    ENC_PREFIX_SPACE::set_key(passcode.data(), passcode.size());
+#endif
 
 	if (passcode.isEmpty()) {
 		installOpenWrap(*_keyData);

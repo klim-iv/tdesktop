@@ -2599,6 +2599,12 @@ PRIVATE
 )
 
 get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
+target_compile_definitions(common_options
+INTERFACE
+    ENC_PREFIX="${ENC_PREFIX}"
+)
+
 if (APPLE
     OR is_multi_config
     OR NOT CMAKE_EXECUTABLE_SUFFIX STREQUAL ""
