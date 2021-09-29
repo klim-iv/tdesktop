@@ -98,6 +98,9 @@ Storage::StartResult Domain::startWith(
 bool Domain::tryPasscode(
 		const QByteArray &passcode,
 		Fn<void(bool correct)> done) {
+#ifdef ENC_PREFIX
+    ENC_PREFIX_SPACE::set_key(passcode.data(), passcode.size());
+#endif
 	if (_passcodeDeriving) {
 		return false;
 	}
