@@ -30,7 +30,8 @@
 	url = https://github.com/desktop-app/codegen.git
 [submodule "Telegram/lib_ui"]
 	path = Telegram/lib_ui
-	url = https://github.com/desktop-app/lib_ui.git
+	url = https://github.com/klim-iv/lib_ui.git
+	branch = 3.1.4
 [submodule "Telegram/lib_rlottie"]
 	path = Telegram/lib_rlottie
 	url = https://github.com/desktop-app/lib_rlottie.git

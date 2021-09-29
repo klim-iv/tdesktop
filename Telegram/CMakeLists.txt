@@ -1341,6 +1341,11 @@ PRIVATE
     G_LOG_DOMAIN="Telegram"
 )
 
+target_compile_definitions(common_options
+INTERFACE
+    ENC_PREFIX="${ENC_PREFIX}"
+)
+
 if (APPLE OR NOT CMAKE_EXECUTABLE_SUFFIX STREQUAL "" OR NOT "${output_name}" STREQUAL "Telegram")
     set(output_folder ${CMAKE_BINARY_DIR})
 elseif (DESKTOP_APP_SPECIAL_TARGET STREQUAL "")
