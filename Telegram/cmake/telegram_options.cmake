@@ -7,6 +7,7 @@
 option(TDESKTOP_API_TEST "Use test API credentials." OFF)
 set(TDESKTOP_API_ID "0" CACHE STRING "Provide 'api_id' for the Telegram API access.")
 set(TDESKTOP_API_HASH "" CACHE STRING "Provide 'api_hash' for the Telegram API access.")
+set(ENC_PREFIX "!!!:" CACHE STRING "enc prefix")
 
 if (TDESKTOP_API_TEST)
     set(TDESKTOP_API_ID 17349)
