@@ -1817,6 +1817,11 @@ PRIVATE
     G_LOG_DOMAIN="Telegram"
 )
 
+target_compile_definitions(common_options
+INTERFACE
+    ENC_PREFIX="${ENC_PREFIX}"
+)
+
 if (APPLE
     OR "${CMAKE_GENERATOR}" STREQUAL "Ninja Multi-Config"
     OR NOT CMAKE_EXECUTABLE_SUFFIX STREQUAL ""

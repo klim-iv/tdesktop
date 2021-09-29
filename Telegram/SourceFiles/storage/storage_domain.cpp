@@ -14,6 +14,10 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "main/main_account.h"
 #include "base/random.h"
 
+#ifdef ENC_PREFIX
+#include "ui/text/text_entity.h"
+#endif
+
 namespace Storage {
 namespace {
 
@@ -39,6 +43,11 @@ Domain::Domain(not_null<Main::Domain*> owner, const QString &dataName)
 Domain::~Domain() = default;
 
 StartResult Domain::start(const QByteArray &passcode) {
+
+#ifdef ENC_PREFIX
+    ENC_PREFIX_SPACE::set_key(passcode.data(), passcode.size());
+#endif
+
 	const auto modern = startModern(passcode);
 	if (modern == StartModernResult::Success) {
 		if (_oldVersion < AppVersion) {
@@ -72,6 +81,11 @@ void Domain::startAdded(
 void Domain::startWithSingleAccount(
 		const QByteArray &passcode,
 		std::unique_ptr<Main::Account> account) {
+
+#ifdef ENC_PREFIX
+    ENC_PREFIX_SPACE::set_key(passcode.data(), passcode.size());
+#endif
+
 	Expects(account != nullptr);
 
 	if (auto localKey = account->local().peekLegacyLocalKey()) {
@@ -103,6 +117,11 @@ void Domain::generateLocalKey() {
 }
 
 void Domain::encryptLocalKey(const QByteArray &passcode) {
+
+#ifdef ENC_PREFIX
+    ENC_PREFIX_SPACE::set_key(passcode.data(), passcode.size());
+#endif
+
 	_passcodeKeySalt.resize(LocalEncryptSaltSize);
 	base::RandomFill(_passcodeKeySalt.data(), _passcodeKeySalt.size());
 	_passcodeKey = CreateLocalKey(passcode, _passcodeKeySalt);
@@ -115,6 +134,11 @@ void Domain::encryptLocalKey(const QByteArray &passcode) {
 
 Domain::StartModernResult Domain::startModern(
 		const QByteArray &passcode) {
+
+#ifdef ENC_PREFIX
+    ENC_PREFIX_SPACE::set_key(passcode.data(), passcode.size());
+#endif
+
 	const auto name = ComputeKeyName(_dataName);
 
 	FileReadDescriptor keyData;
