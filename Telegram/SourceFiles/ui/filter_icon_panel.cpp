@@ -24,7 +24,7 @@ namespace {
 constexpr auto kHideTimeoutMs = crl::time(300);
 constexpr auto kIconsPerRow = 6;
 
-constexpr auto kIcons = std::array{
+constexpr auto kIcons = std::array<FilterIcon, 23>{
 	FilterIcon::Cat,
 	FilterIcon::Crown,
 	FilterIcon::Favorite,
