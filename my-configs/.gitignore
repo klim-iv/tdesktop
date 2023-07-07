@@ -1,0 +1,5 @@
+.applied
+.unpacked
+env.bash
+secure-data.tar
+*.patch

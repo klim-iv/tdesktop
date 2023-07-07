@@ -74,6 +74,8 @@ Version **1.8.15** was the last that supports older systems
 * [Windows (32-bit and 64-bit)][win]
 * [macOS][mac]
 * [GNU/Linux using Docker][linux]
+* [GNU/Linux using Docker][linux]
+* [MyTelegram build][my-linux]
 
 [//]: # (LINKS)
 [telegram]: https://telegram.org
@@ -84,6 +86,7 @@ Version **1.8.15** was the last that supports older systems
 [win]: docs/building-win.md
 [mac]: docs/building-mac.md
 [linux]: docs/building-linux.md
+[my-linux]: my-configs/building.md
 [preview_image]: https://github.com/telegramdesktop/tdesktop/blob/dev/docs/assets/preview.png "Preview of Telegram Desktop"
 [preview_image_url]: https://raw.githubusercontent.com/telegramdesktop/tdesktop/dev/docs/assets/preview.png
 
