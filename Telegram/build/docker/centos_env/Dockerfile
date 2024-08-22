@@ -10,6 +10,10 @@ ENV LIBRARY_PATH=/opt/rh/$TOOLSET/root/usr/lib64:/opt/rh/$TOOLSET/root/usr/lib:/
 ENV LD_LIBRARY_PATH=$LIBRARY_PATH
 ENV PKG_CONFIG_PATH=/opt/rh/$TOOLSET/root/usr/lib64/pkgconfig:/opt/rh/$TOOLSET/root/usr/lib/pkgconfig:/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig
 
+{%- if HTTPS_PROXY %}
+ENV HTTPS_PROXY='{{ HTTPS_PROXY }}'
+{%- endif %}
+
 RUN --mount=type=cache,target=/var/cache/dnf <<EOF
 dnf -y install epel-release
 dnf config-manager --set-enabled powertools

@@ -15,6 +15,7 @@ def main():
         LTO=checkEnv("LTO", True),
         ASAN=checkEnv("ASAN", False),
         JOBS=checkEnv("JOBS", ""),
+        HTTPS_PROXY=checkEnv("HTTPS_PROXY", ""),
     ))
 
 if __name__ == '__main__':
